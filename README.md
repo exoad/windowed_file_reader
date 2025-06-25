@@ -40,6 +40,13 @@ This reader sacrifices a lot of bounds checking and other numerical clampping as
 be faster for reading a file with speed. However, this is method can significantly be eliminated with the
 JIT compiler, thus mileage for this implementation may vary.
 
+## Chores
+
+Here is are the current high priority chores that will hopefully make its way into the code soon!
+
+- [ ] A resizable window implementation that can allow for third parties to alter the `windowSize` parameter and adjust accordingly
+- [ ] Additional sanity checks and exception throwing for all safe readers when certain operations are not deemed standard (i.e. clamping)
+
 ---
 
 BSD 3-Clause License
