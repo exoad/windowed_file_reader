@@ -1,11 +1,11 @@
 name: windowed_file_reader
-description: A memory efficient sliding window file reader to read large files only at the places you want.
+description: An efficient file reader for reading large files utilizing a sliding window.
 version: 1.0.0
 # repository: https://github.com/my_org/my_repo
 
 environment:
-  sdk: ^3.8.1
+    sdk: ^3.8.1
 
 dev_dependencies:
-  lints: ^5.0.0
-  test: ^1.24.0
+    lints: ^5.0.0
+    test: ^1.24.0
