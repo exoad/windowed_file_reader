@@ -1,6 +1,9 @@
 <h1 align="center">
 <img src="./meta/logo.png" width=86/><br/>windowed_file_reader
+<br/>
+<img src="https://github.com/exoad/windowed_file_reader/actions/workflows/dart.yml/badge.svg" />
 </h1>
+
 
 **A memory efficient [sliding window](https://stackoverflow.com/a/64111403/14501343) file reader.**
 
