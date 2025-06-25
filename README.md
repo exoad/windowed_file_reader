@@ -1,9 +1,8 @@
 <h1 align="center">
-<img src="./meta/logo.png" width=86/><br/>windowed_file_reader
+<img src="https://raw.githubusercontent.com/exoad/windowed_file_reader/refs/heads/main/meta/logo.png" width=86/><br/>windowed_file_reader
 <br/>
 <img src="https://github.com/exoad/windowed_file_reader/actions/workflows/dart.yml/badge.svg" />
 </h1>
-
 
 **A memory efficient [sliding window](https://stackoverflow.com/a/64111403/14501343) file reader.**
 
@@ -40,7 +39,6 @@ stick to using this method for the majority.
 This reader sacrifices a lot of bounds checking and other numerical clampping as well as sanity checks to
 be faster for reading a file with speed. However, this is method can significantly be eliminated with the
 JIT compiler, thus mileage for this implementation may vary.
-
 
 ---
 
