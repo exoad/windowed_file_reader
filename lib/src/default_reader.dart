@@ -207,6 +207,22 @@ class DefaultWindowedFileReader extends WindowedFileReader<Uint8List> {
 
   @override
   Future<void> refresh() async {
+    if (_raf != null) {
+      _fileLength = await _raf!.length();
+      if (_ptrEnd > _fileLength) {
+        _ptrEnd = _fileLength;
+      }
+      if (_ptrStart > _fileLength) {
+        _ptrStart = _fileLength.clamp(0, _fileLength - windowSize).clamp(0, _fileLength);
+        _ptrEnd = (_ptrStart + windowSize).clamp(_ptrStart, _fileLength);
+      }
+    }
     await _read();
+  }
+
+  Future<void> updateFileLength() async {
+    if (_raf != null) {
+      _fileLength = await _raf!.length();
+    }
   }
 }

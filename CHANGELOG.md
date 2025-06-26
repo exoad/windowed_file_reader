@@ -1,3 +1,7 @@
+## 1.0.3
+
+- The default reader automatically updates the file length and adjusts the stream when the file is appended to
+
 ## 1.0.2
 
 - Fixed a bug where the reader would overwrite stale data when the window size was bigger than the file.
