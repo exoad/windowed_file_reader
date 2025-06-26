@@ -84,4 +84,12 @@ class UnsafeWindowedFileReader extends WindowedFileReader<Uint8List> {
   int get windowSize {
     return _windowSize;
   }
+
+  @override
+  Future<void> refresh() async {
+    await _raf.setPosition(_ptrStart);
+    final Uint8List bytes = await _raf.read(_ptrEnd - _ptrStart);
+    _window.setRange(0, bytes.length, bytes);
+    _actualDataLength = bytes.length;
+  }
 }

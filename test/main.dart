@@ -51,6 +51,29 @@ void main() async {
     charsPerLine: 100,
     batchSize: 100,
   );
+  final File emptyFile = File("./generated_empty_file.txt");
+  await emptyFile.create();
+  t(
+    "DefaultReader: read empty file with common parameters",
+    (() async {
+      final DefaultWindowedFileReader reader = DefaultWindowedFileReader(
+        emptyFile,
+        windowSize: 256,
+      );
+      await reader.initialize();
+      final int result = reader.windowSize;
+      await reader.dispose();
+      return result;
+    })(),
+    completes,
+  );
+  t("DefaultReader: read empty file view string is empty", await () async {
+    final DefaultWindowedFileReader reader = DefaultWindowedFileReader(emptyFile, windowSize: 256);
+    await reader.initialize();
+    final String viewString = reader.viewAsString();
+    await reader.dispose();
+    return viewString;
+  }(), isEmpty);
   final File testFile = File("./generated_test_file.txt");
   final String testContent = await testFile.readAsString();
   t("DefaultReader: window size is correct", await () async {

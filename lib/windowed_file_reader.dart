@@ -50,6 +50,9 @@ abstract class WindowedFileReader<T> {
     return position >= 0 && (position + windowSize) <= fileLengthInBytes;
   }
 
+  /// Forces the reader to completely reread the data at the current position.
+  Future<void> refresh();
+
   /// Returns current internal buffer data
   T view();
 

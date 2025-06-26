@@ -62,7 +62,7 @@ class DefaultWindowedFileReader extends WindowedFileReader<Uint8List> {
   @override
   Future<void> shiftBy(int increment) async {
     if (!await canShiftBy(increment)) {
-      throw ArgumentError(
+      throw WindowedFileReaderException(
         "Cannot shift by $increment: would move pointers out of bounds "
         "(current: $_ptrStart-$_ptrEnd, file length: $_fileLength)",
       );
@@ -182,5 +182,10 @@ class DefaultWindowedFileReader extends WindowedFileReader<Uint8List> {
     if (!_isInitialized) {
       await initialize();
     }
+  }
+
+  @override
+  Future<void> refresh() async {
+    await _read();
   }
 }
