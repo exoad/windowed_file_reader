@@ -34,6 +34,30 @@ The default API uses a single class `WindowedFileReader` to grab the builtin imp
 This is the common one you can use and handles most common tasks and has bounds checking. You should
 stick to using this method for the majority.
 
+**Example**
+
+```dart
+import "dart:io";
+import "package:windowed_file_reader/windowed_file_reader.dart";
+
+void main() async {
+  final DefaultWindowedFileReader reader = WindowedFileReader.defaultReader(
+    file: File("large_file.txt"),
+    windowSize: 1024,
+  );
+  await reader.initialize();
+  await reader.refresh();
+  print("Current window content:");
+  print(reader.viewAsString());
+  if (await reader.canShiftBy(512)) {
+    await reader.shiftBy(512);
+    print("New window content:");
+    print(reader.viewAsString());
+  }
+  await reader.dispose();
+}
+```
+
 ### Unsafe Reader
 
 This reader sacrifices a lot of bounds checking and other numerical clampping as well as sanity checks to

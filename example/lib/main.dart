@@ -7,7 +7,7 @@ void main() async {
     windowSize: 1024,
   );
   await reader.initialize();
-  await reader.jumpToStart();
+  await reader.refresh();
   print("Current window content:");
   print(reader.viewAsString());
   if (await reader.canShiftBy(512)) {

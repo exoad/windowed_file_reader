@@ -1,6 +1,6 @@
 name: windowed_file_reader
 description: An efficient file reader for reading large files utilizing a sliding window.
-version: 1.0.1
+version: 1.0.2
 repository: https://github.com/exoad/windowed_file_reader
 
 environment:

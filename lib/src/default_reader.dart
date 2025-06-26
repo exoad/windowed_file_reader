@@ -5,6 +5,8 @@ import 'dart:typed_data';
 import 'package:windowed_file_reader/windowed_file_reader.dart';
 
 /// The default sliding window implementation that can be used for most tasks with various safety checks.
+///
+/// This implementation uses a [Uint8List] which means the content it reads must be UTF-8 Encoded (i.e. 1 byte per character)
 class DefaultWindowedFileReader extends WindowedFileReader<Uint8List> {
   final int _windowSize;
 
@@ -23,6 +25,19 @@ class DefaultWindowedFileReader extends WindowedFileReader<Uint8List> {
       _windowSize = windowSize,
       assert(windowSize > 0, "Window size must be greater than 0!");
 
+  /// A handy constructor for when you have properly structured data that needs to be read in full without being cutoff.
+  /// However, this will still require you to keep track of the chunk size externally. You can take a look at [ChunkedWindowedFileReader] if you don't want something more high level.
+  ///
+  /// - [chunkSize] How big each of the structured data is in bytes
+  /// - [containsSeparator] Whether there is an additional byte that is used for separating these structured data chunks, like new line
+  /// - [chunksPerWindow] How many chunks to read.
+  DefaultWindowedFileReader.chunked(
+    File file, {
+    required int chunkSize,
+    bool containsSeparator = true,
+    required int chunksPerWindow,
+  }) : this(file, windowSize: (chunkSize + (containsSeparator ? 0 : 1)) * chunksPerWindow);
+
   @override
   Future<void> initialize() async {
     if (_isInitialized) {
@@ -33,6 +48,8 @@ class DefaultWindowedFileReader extends WindowedFileReader<Uint8List> {
     }
     _raf = await file.open();
     _fileLength = await _raf!.length();
+    _ptrStart = 0;
+    _ptrEnd = _fileLength < _windowSize ? _fileLength : _windowSize;
     _isInitialized = true;
   }
 
@@ -44,9 +61,10 @@ class DefaultWindowedFileReader extends WindowedFileReader<Uint8List> {
 
   @override
   Future<void> jumpTo(int position) async {
+    await _ensureInitialized();
     if (await canJumpTo(position)) {
       _ptrStart = position;
-      _ptrEnd = _ptrStart + _windowSize;
+      _ptrEnd = (_ptrStart + _windowSize).clamp(_ptrStart, _fileLength);
       await _read();
     }
   }
@@ -55,8 +73,8 @@ class DefaultWindowedFileReader extends WindowedFileReader<Uint8List> {
   Future<bool> canShiftBy(int increment) async {
     await _ensureInitialized();
     final int newStart = _ptrStart + increment;
-    final int newEnd = _ptrEnd + increment;
-    return newStart >= 0 && newEnd <= _fileLength && newStart < newEnd;
+    final int newEnd = newStart + _windowSize;
+    return newStart >= 0 && newStart <= _fileLength && newEnd > newStart;
   }
 
   @override
@@ -68,7 +86,7 @@ class DefaultWindowedFileReader extends WindowedFileReader<Uint8List> {
       );
     }
     _ptrStart += increment;
-    _ptrEnd += increment;
+    _ptrEnd = (_ptrStart + _windowSize).clamp(_ptrStart, _fileLength);
     final int absIncrement = increment.abs();
     if (absIncrement >= windowSize) {
       await _read();
@@ -81,7 +99,7 @@ class DefaultWindowedFileReader extends WindowedFileReader<Uint8List> {
 
   @override
   Uint8List view() {
-    return _window.asUnmodifiableView();
+    return _window.sublist(0, _actualDataLength).asUnmodifiableView();
   }
 
   /// Returns the current data held as a [String] if possible.
@@ -137,7 +155,9 @@ class DefaultWindowedFileReader extends WindowedFileReader<Uint8List> {
       final int readStart = _ptrStart + keepCount;
       if (readStart < _fileLength) {
         await _raf!.setPosition(readStart);
-        final Uint8List bytes = await _raf!.read((increment).clamp(0, _fileLength - readStart));
+        final Uint8List bytes = await _raf!.read(
+          (_ptrEnd - readStart).clamp(0, _fileLength - readStart),
+        );
         _window.setRange(keepCount, keepCount + bytes.length, bytes);
         _actualDataLength = keepCount + bytes.length;
       } else {
@@ -171,6 +191,7 @@ class DefaultWindowedFileReader extends WindowedFileReader<Uint8List> {
       final Uint8List bytes = await _raf!.read(
         (_ptrEnd - _ptrStart).clamp(0, _fileLength - _ptrStart),
       );
+      _window.fillRange(0, _window.length, 0);
       _window.setRange(0, bytes.length, bytes);
       _actualDataLength = bytes.length;
     } finally {

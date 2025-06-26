@@ -3,3 +3,4 @@
 .dart_tool/
 # for the test files used
 *.txt
+test/raw_test.dart
